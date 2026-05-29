@@ -1,0 +1,593 @@
+local files = require("twee.files")
+local utils = require("twee.utils")
+
+local M = {}
+
+local symbols = {}
+
+local files_content = {
+  twee_content = {},
+  js_content = {},
+}
+
+local methods = {}
+
+---@param params lsp.InitializeParams
+---@param callback function
+methods["initialize"] = function(params, callback)
+  return callback(nil, {
+    capabilities = {
+      codeActionProvider = true,
+      definitionProvider = true,
+      documentHighlightProvider = true,
+      hoverProvider = true,
+      referencesProvider = true,
+      textDocumentSync = vim.lsp.protocol.TextDocumentSyncKind.Full,
+      completionProvider = {
+        triggerCharacters = { ":", "<", "$", "." },
+      },
+    },
+  })
+end
+
+---@param callback function
+methods["shutdown"] = function(_, callback)
+  return callback(nil, nil)
+end
+
+---@param params lsp.CodeActionParams
+methods["textDocument/codeAction"] = function(params, callback)
+  local code_action = {}
+
+  local uri = vim.uri_from_bufnr(0)
+
+  local diagnostics = vim.diagnostic.get(0, {
+    lnum = params.range.start.line,
+  })
+
+  for _, tbl in ipairs(diagnostics) do
+    if tbl.code == "twee-widget-storytitle-missing" then
+      vim.list_extend(code_action, {
+        {
+          title = "add story title",
+          edit = {
+            changes = {
+              [uri] = {
+                {
+                  range = utils.make_range(0, 0, 0, 0),
+                  newText = ":: StoryTitle\nSample Text\n\n",
+                },
+              },
+            },
+          },
+        },
+      })
+    elseif tbl.code == "twee-widget-storydata-missing" then
+      vim.list_extend(code_action, {
+        {
+          title = "add story data",
+          edit = {
+            changes = {
+              [uri] = {
+                {
+                  range = utils.make_range(0, 0, 0, 0),
+                  newText = ':: StoryData\n{\n\t"ifid": ' .. utils.generate_ifid() .. "\n}\n\n",
+                },
+              },
+            },
+          },
+        },
+      })
+    elseif tbl.code == "twee-widget-start-missing" then
+      vim.list_extend(code_action, {
+        {
+          title = "add start",
+          edit = {
+            changes = {
+              [uri] = {
+                {
+                  range = utils.make_range(0, 0, 0, 0),
+                  newText = ":: Start\nSample Text\n\n",
+                },
+              },
+            },
+          },
+        },
+      })
+    end
+  end
+
+  return callback(nil, code_action)
+end
+
+---@param params lsp.CompletionParams
+---@param callback function
+methods["textDocument/completion"] = function(params, callback)
+  local hl_group = utils.get_pos_hl_group()
+
+  if hl_group == "Comment" then
+    return callback(nil, nil)
+  end
+
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local row = cursor[1] - 1
+  local col = cursor[2]
+  local line = vim.fn.getline(".")
+
+  local trigger_character = params.context.triggerCharacter
+
+  ---@type lsp.CompletionItem[]
+  local completion = {}
+
+  if string.sub(line, math.max(col - 2, 0)) == "<<" or utils.get_pos_hl_group(0, row, col - 1) == "Conditional" then
+    utils.add_symbols_to_completion_table(symbols, "widget", completion)
+  elseif string.sub(line, math.max(col, 0), col) == "." then
+    if utils.get_pos_hl_group(0, row, col - 1) == "Identifier" then
+      utils.add_symbols_to_completion_table(symbols, "chain", completion)
+    end
+  elseif trigger_character == "$" or utils.get_pos_hl_group(0, row, col - 1) == "Identifier" then
+    utils.add_symbols_to_completion_table(symbols, "variable", completion)
+  elseif trigger_character == "<" then
+    completion = {
+      {
+        label = "br",
+        insertText = "<br>",
+      },
+      {
+        label = "span",
+        insertText = "<span></span>",
+      },
+      {
+        label = "div",
+        insertText = "<div></div>",
+      },
+    }
+  else
+    local items = {
+      {
+        label = "passage header",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = ":: $0",
+        insertText = ":: $0",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "StoryData",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        insertText = ':: StoryData\n{\n\t"ifid": ' .. utils.generate_ifid() .. "\n}\n\n",
+      },
+      {
+        label = "StoryTitle",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = ":: StoryTitle\n${0:Sample Text}\n",
+        insertText = ":: StoryTitle\n${0:Sample Text}\n\n",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "Start",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = ":: Start\n${0:Sample Text}\n",
+        insertText = ":: Start\n${0:Sample Text}\n\n",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "if",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<if $1>>\n\t$0\n<</if>>",
+        insertText = "<<if $1>>\n\t$0\n<</if>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "elseif",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<elseif $0>>",
+        insertText = "<<elseif $0>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "else",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        textEdit = {
+          newText = "<<else>>",
+          range = utils.make_textEdit_range("else"),
+        },
+      },
+      {
+        label = "widget",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = '<<widget "$1">>\n\t$0\n<</widget>>',
+        insertText = '<<widget "$1">>\n\t$0\n<</widget>>',
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "for",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<for $1>>\n\t$0\n<</for>>",
+        insertText = "<<for $1>>\n\t$0\n<</for>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "fori",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<for ${1:_i} to 0; ${2:_i} lt ${3:x}; ${4:_i}++>>\n\t$0\n<</for>>",
+        insertText = "<<for ${1:_i} to 0; ${2:_i} lt ${3:x}; ${4:_i}++>>\n\t$0\n<</for>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "set ... to",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<set $1 to $0>>",
+        insertText = "<<set $1 to $0>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "set",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<set $0>>",
+        insertText = "<<set $0>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "continue",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        textEdit = {
+          newText = "<<continue>>",
+          range = utils.make_textEdit_range("continue"),
+        },
+      },
+      {
+        label = "print",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        textEdit = {
+          newText = "<<print>>",
+          range = utils.make_textEdit_range("print"),
+        },
+      },
+      {
+        label = "br",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        textEdit = {
+          newText = "<br>",
+          range = utils.make_textEdit_range("br"),
+        },
+      },
+      {
+        label = "span",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        textEdit = {
+          newText = "<span>$0</span>",
+          range = utils.make_textEdit_range("span"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "div",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        insertText = "<div>\n$0\n</div>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "and",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "or",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "is",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "lt",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "lte",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "gt",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "gte",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "true",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "false",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+      {
+        label = "to",
+        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+      },
+    }
+
+    utils.add_symbols_to_completion_table(symbols, "function", items)
+
+    completion = {
+      isIncomplete = true,
+      items = items,
+    }
+  end
+
+  return callback(nil, completion)
+end
+
+---@param params lsp.DefinitionParams
+---@param callback function
+methods["textDocument/definition"] = function(params, callback)
+  local hl_group = utils.get_pos_hl_group(0, nil, nil, { blacklist = { "Comment", "Delimiter", "Operator" } })
+
+  if hl_group == nil then
+    return callback(nil, nil)
+  end
+
+  local current_word = vim.fn.expand("<cword>")
+
+  ---@type table|nil
+  local location = {}
+
+  if hl_group == "Conditional" then
+    location = utils.find_location(files_content.twee_content, '<<widget "' .. current_word .. '"')
+  elseif hl_group == "Identifier" then
+    location = utils.find_location(files_content.twee_content, "<<set $%f[%a]" .. current_word .. "%f[%A] ")
+  elseif hl_group == "Function" then
+    location = utils.find_location(files_content.js_content, "function %f[%a]" .. current_word .. "%f[%A]%(.*%)")
+  end
+
+  return callback(nil, location)
+end
+
+---@param params lsp.DocumentHighlightParams
+---@param callback function
+methods["textDocument/documentHighlight"] = function(params, callback)
+  local hl_group = utils.get_pos_hl_group(0, nil, nil, { blacklist = { "Comment", "Delimiter", "Operator" } })
+
+  if hl_group == nil then
+    return callback(nil, nil)
+  end
+
+  local current_word = vim.fn.expand("<cword>")
+  local current_line_content = vim.api.nvim_get_current_line()
+
+  ---@type table|nil
+  local document_highlight = {}
+
+  if string.match(current_line_content, "$%f[%a]" .. current_word .. "%f[%A]") then
+    document_highlight =
+      utils.find_location(files_content, "$%f[%a]" .. current_word .. "%f[%A]", { only_current_buffer = true })
+  elseif hl_group == "String" then
+    local str = utils.get_current_string()
+
+    document_highlight = utils.find_location(files_content.twee_content, str, { only_current_buffer = true })
+  else
+    document_highlight = utils.find_location(
+      files_content.twee_content,
+      "%f[%a]" .. current_word .. "%f[%A]",
+      { only_current_buffer = true }
+    )
+  end
+
+  return callback(nil, document_highlight)
+end
+
+---@param params lsp.HoverParams
+---@param callback function
+methods["textDocument/hover"] = function(params, callback)
+  local hl_group = utils.get_pos_hl_group(0, nil, nil, { blacklist = { "Comment", "Delimiter", "Operator" } })
+
+  if hl_group == nil then
+    return callback(nil, nil)
+  end
+
+  local current_word = vim.fn.expand("<cword>")
+
+  ---@type lsp.Hover
+  local hover = {
+    contents = {
+      kind = "plaintext",
+      value = current_word,
+    },
+  }
+
+  if hl_group == "Title" then
+    hover.contents.value = ("(passage) %s"):format(current_word)
+  elseif hl_group == "Identifier" then
+    hover.contents.value = ("(variable) %s"):format(current_word)
+  elseif hl_group == "Conditional" then
+    local widget = utils.get_symbol(symbols, current_word) or {}
+    local widget_closed = widget.closed and "<</" .. current_word .. ">>" or ""
+    local widget_docum = widget.documentation and "\n---\n" .. widget.documentation or ""
+
+    hover.contents.kind = "markdown"
+    hover.contents.value = ("```html\n<<%s>>%s\n```%s"):format(current_word, widget_closed, widget_docum)
+  elseif hl_group == "Function" then
+    local func = utils.get_symbol(symbols, current_word) or {}
+    local func_params = func.parameters and table.concat(func.parameters, ", ") or ""
+    local func_docum = func.documentation and "\n---\n" .. func.documentation or ""
+
+    hover.contents.kind = "markdown"
+    hover.contents.value = ("```js\n%s(%s)\n```%s"):format(current_word, func_params, func_docum)
+  elseif hl_group == "String" then
+    local str = utils.get_current_string():sub(2, -2)
+
+    hover.contents.value = ("%d bytes"):format(#str)
+  end
+
+  return callback(nil, hover)
+end
+
+---@param params lsp.ReferenceParams
+---@param callback function
+methods["textDocument/references"] = function(params, callback)
+  local hl_group = utils.get_pos_hl_group(0, nil, nil, { blacklist = { "Comment", "Delimiter", "Operator" } })
+
+  if hl_group == nil then
+    return callback(nil, nil)
+  end
+
+  local current_word = vim.fn.expand("<cword>")
+
+  ---@type table|nil
+  local location = {}
+
+  location = utils.find_location(files_content.twee_content, "%f[%a]" .. current_word .. "%f[%A]")
+
+  return callback(nil, location)
+end
+
+local function cmd_fn(dispatchers)
+  local closing = false
+  local request_id = 0
+
+  local server = {}
+  function server.request(method, params, callback)
+    local method_impl = methods[method]
+    if method_impl ~= nil then
+      method_impl(params, callback)
+    end
+
+    request_id = request_id + 1
+    return true, request_id
+  end
+
+  function server.notify(method, params)
+    if method == "exit" then
+      dispatchers.on_exit(0, 15)
+    end
+  end
+
+  function server.is_closing()
+    return closing
+  end
+
+  function server.terminate()
+    closing = true
+  end
+
+  return server
+end
+
+---@param config? vim.lsp.ClientConfig
+M.start = function(config)
+  local root_dir = vim.fs.root(0, { ".gitignore", "package.json" }) or vim.fn.expand("%:p")
+  local capabilities = vim.lsp.protocol.make_client_capabilities()
+  local namespace = vim.api.nvim_create_namespace("TweeDiagnostics")
+  local filetype = { "*.twee", "*.tw" }
+
+  files.load_files(root_dir, files_content, symbols)
+
+  config = config or {}
+
+  config.name = config.name or "tweelsp"
+  config.cmd = config.cmd or cmd_fn
+  config.root_dir = config.root_dir or root_dir
+  config.capabilities = config.capabilities or capabilities
+
+  local client = vim.lsp.start(config)
+
+  ---@diagnostic disable-next-line: param-type-mismatch
+  vim.lsp.buf_attach_client(0, client)
+
+  local reload_group = vim.api.nvim_create_augroup("twee-nvim-reload", { clear = true })
+
+  vim.api.nvim_create_autocmd({ "InsertCharPre", "BufWritePost", "InsertLeave", "TextChanged", "BufEnter" }, {
+    pattern = filetype,
+    group = reload_group,
+    callback = function(args)
+      local file_buf = vim.uri_to_bufnr(vim.uri_from_fname(args.file))
+      if args.buf ~= file_buf then
+        return
+      end
+
+      files.reload_current_file(files_content, symbols)
+    end,
+  })
+
+  vim.api.nvim_create_autocmd({ "BufWritePost", "User", "TextChanged", "InsertLeave" }, {
+    pattern = filetype,
+    group = reload_group,
+    callback = function(args)
+      if args.event == "User" and args.data ~= "twee-nvim-diagnostic-load" then
+        return
+      end
+
+      utils.get_story_data(files_content.twee_content, symbols)
+    end,
+  })
+
+  vim.api.nvim_create_autocmd({ "BufWritePost", "InsertLeave", "VimEnter", "CursorHoldI", "User", "CursorHold" }, {
+    pattern = filetype,
+    group = vim.api.nvim_create_augroup("twee-nvim-diagnostic", { clear = true }),
+    callback = function(args)
+      if args.event == "User" and args.data ~= "twee-nvim-diagnostic-load" then
+        return
+      end
+
+      local diagnostic = {}
+      local passage_start_name = vim.g.twee_story_data_start or "Start"
+      local buffer = vim.api.nvim_get_current_buf()
+
+      vim.diagnostic.reset(namespace, buffer)
+
+      if utils.get_symbol(symbols, "StoryTitle") == nil then
+        vim.list_extend(diagnostic, {
+          {
+            message = "Passage StoryTitle not found",
+            lnum = 0,
+            severity = vim.diagnostic.severity.ERROR,
+            code = "twee-widget-storytitle-missing",
+          },
+        })
+      end
+
+      if utils.get_symbol(symbols, "StoryData") == nil then
+        vim.list_extend(diagnostic, {
+          {
+            message = "Passage StoryData not found",
+            lnum = 0,
+            severity = vim.diagnostic.severity.ERROR,
+            code = "twee-widget-storydata-missing",
+          },
+        })
+      end
+
+      if utils.get_symbol(symbols, passage_start_name) == nil then
+        vim.list_extend(diagnostic, {
+          {
+            message = "Passage Start not found",
+            lnum = 0,
+            severity = vim.diagnostic.severity.ERROR,
+            code = "twee-widget-start-missing",
+          },
+        })
+      end
+
+      if _G.story_data ~= nil then
+        if _G.story_data_invalid_json then
+          vim.list_extend(diagnostic, {
+            {
+              message = "Invalid JSON",
+              lnum = _G.story_data_line,
+              severity = vim.diagnostic.severity.ERROR,
+              code = "twee-json-invalid",
+            },
+          })
+
+          buffer = vim.uri_to_bufnr(_G.story_data_uri)
+        end
+      end
+
+      vim.diagnostic.config({ update_in_insert = true, severity_sort = true }, namespace)
+      vim.diagnostic.set(namespace, buffer, diagnostic)
+    end,
+  })
+end
+
+return M
