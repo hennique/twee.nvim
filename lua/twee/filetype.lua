@@ -9,7 +9,6 @@ M.set = function()
   vim.cmd.syntax([[match Function "\w\+\((.*)\)\@="]])
   vim.cmd.syntax([[match Conditional "\(<<\/\=\)\@<=\w\+"]]) -- Macros
   vim.cmd.syntax([[match Constant "<\/\=[A-Za-z0-9]\+.\{-}>"]]) -- HTML tags
-  vim.cmd.syntax([[match Comment /<!--.*-->/]])
   vim.cmd.syntax([[match Identifier /\$[A-Za-z0-9_.?]*/ contains=Ignore,Delimiter]])
   vim.cmd.syntax([[match Title /^[*#]/]])
   vim.cmd.syntax([[match Type /\[.*\]/]])
@@ -20,6 +19,7 @@ M.set = function()
   vim.cmd.syntax([[match Title /^::.*$/ contains=Type]])
   vim.cmd.syntax([[region String start=+"+ end=+"+]])
   vim.cmd.syntax([[region Comment start="[/][*]" end="[*][/]"]])
+  vim.cmd.syntax([[region Comment start="<!--" end="-->"]])
 end
 
 return M
