@@ -9,7 +9,7 @@ M.set = function()
   vim.cmd.syntax([[match Function "\w\+\((.*)\)\@="]])
   vim.cmd.syntax([[match Conditional "\(<<\/\=\)\@<=\w\+"]]) -- Macros
   vim.cmd.syntax([[match Constant "<\/\=[A-Za-z0-9]\+.\{-}>"]]) -- HTML tags
-  vim.cmd.syntax([[match Identifier /\$[A-Za-z0-9_.?]*/ contains=Ignore,Delimiter]])
+  vim.cmd.syntax([[match Identifier /\$[A-Za-z0-9_.?]*/ contains=Ignore,Delimiter,Function]])
   vim.cmd.syntax([[match Title /^[*#]/]])
   vim.cmd.syntax([[match Type /\[.*\]/]])
   vim.cmd.syntax([[match Number /[0-9]/]])
