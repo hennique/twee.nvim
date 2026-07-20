@@ -1,7 +1,6 @@
 ---@alias twee.Symbol.Type "widget"|"variable"|"passage"|"function"
 
 ---@class twee.Symbol
----@field type twee.Symbol.Type
 ---@field uri? string
 ---@field line? number
 ---@field documentation? string
@@ -13,10 +12,20 @@
 ---@field next? table For variables. Stores all attributes of a variable
 ---@field value? any For variables. Stores the value of the variable
 
+---@class twee.SymbolsTbl.Symbols
+---@field widget table<string, twee.Symbol>
+---@field variable table<string, twee.Symbol>
+---@field passage table<string, twee.Symbol>
+---@field function table<string, twee.Symbol>
+
+---@class twee.SymbolsTbl
+---@field buf_symbols twee.SymbolsTbl.Symbols
+---@field global_symbols twee.SymbolsTbl.Symbols
+
 local M = {}
 
 --- Add a type of symbol to a CompletionItem[] table.
----@param symbols table Table of symbols
+---@param symbols twee.SymbolsTbl Table of symbols
 ---@param type twee.Symbol.Type|"chain" Type of symbol to add
 ---@param completion_table table Completion table to extend
 function M.add_symbols_to_completion_table(symbols, type, completion_table)
@@ -34,13 +43,13 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
       var = var:gsub("$", ""):gsub("%.$", "")
       local var_tbl = vim.split(var, "%.")
 
-      local item = symbol_tbl[var_tbl[1]]
+      local item = symbol_tbl["variable"][var_tbl[1]]
 
       if item == nil then
         goto continue
       end
 
-      local next_var = symbol_tbl[var_tbl[1]].next
+      local next_var = symbol_tbl["variable"][var_tbl[1]].next
 
       if #var_tbl > 1 then
         for i = 2, #var_tbl do
@@ -65,11 +74,11 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
       goto continue
     end
 
-    for item, sym_tbl in pairs(symbol_tbl) do
-      ---@type twee.Symbol
-      sym_tbl = sym_tbl
+    if type == "variable" then
+      for item, sym_tbl in pairs(symbol_tbl["variable"]) do
+        ---@type twee.Symbol
+        sym_tbl = sym_tbl
 
-      if type == "variable" and sym_tbl.type == "variable" then
         if added[item] then
           goto continue
         end
@@ -84,7 +93,13 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
         })
 
         added[item] = true
-      elseif type == "widget" and sym_tbl.type == "widget" then
+        ::continue::
+      end
+    elseif type == "widget" then
+      for item, sym_tbl in pairs(symbol_tbl["widget"]) do
+        ---@type twee.Symbol
+        sym_tbl = sym_tbl
+
         if added[item] then
           goto continue
         end
@@ -122,7 +137,13 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
         vim.list_extend(completion_table, { tbl })
 
         added[item] = true
-      elseif type == "passage" and sym_tbl.type == "passage" then
+        ::continue::
+      end
+    elseif type == "passage" then
+      for item, sym_tbl in pairs(symbol_tbl["passage"]) do
+        ---@type twee.Symbol
+        sym_tbl = sym_tbl
+
         if added[item] then
           goto continue
         end
@@ -135,7 +156,13 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
         })
 
         added[item] = true
-      elseif type == "function" and sym_tbl.type == "function" then
+        ::continue::
+      end
+    elseif type == "function" then
+      for item, sym_tbl in pairs(symbol_tbl["function"]) do
+        ---@type twee.Symbol
+        sym_tbl = sym_tbl
+
         if added[item] then
           goto continue
         end
@@ -159,7 +186,6 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
 
         added[item] = true
       end
-
       ::continue::
     end
 
@@ -347,7 +373,7 @@ function M.get_pos_hl_group(bufnr, row, col, opts)
 end
 
 ---@param content table Twee content to search
----@param symbols table
+---@param symbols twee.SymbolsTbl
 function M.get_story_data(content, symbols)
   local story_data_symbol = M.get_symbol(symbols, "StoryData")
 
@@ -387,14 +413,16 @@ function M.get_story_data(content, symbols)
 end
 
 --- Searchs for a symbol in a table and returns it.
----@param symbols table
+---@param symbols twee.SymbolsTbl
 ---@param name string Name of symbol
 ---@return twee.Symbol|nil
 function M.get_symbol(symbols, name)
   for _, symbol_tbl in pairs(symbols) do
-    for sym_name, sym_tbl in pairs(symbol_tbl) do
-      if sym_name == name then
-        return sym_tbl
+    for _, syms in pairs(symbol_tbl) do
+      for sym_name, sym_tbl in pairs(syms) do
+        if sym_name == name then
+          return sym_tbl
+        end
       end
     end
   end

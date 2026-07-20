@@ -80,20 +80,27 @@ end)
 describe("twee.utils.get_symbol", function()
   local symbol = {
     global_symbols = {
-      ["example1"] = { type = "variable", uri = "file:///home/user/Development/file1.twee", line = 5 },
-      ["example2"] = { type = "variable", uri = "file:///home/user/Development/file1.twee", line = 6 },
-      ["example3"] = { type = "widget", uri = "file:///home/user/Development/file2.twee", line = 23 },
-      ["example4"] = { type = "variable", uri = "file:///home/user/Development/file3.twee", line = 14 },
+      variable = {
+        ["example1"] = { uri = "file:///home/user/Development/file1.twee", line = 5 },
+        ["example2"] = { uri = "file:///home/user/Development/file1.twee", line = 6 },
+      },
+      passage = {
+        ["example3"] = { uri = "file:///home/user/Development/file2.twee", line = 23 },
+      },
+      widget = {
+        ["example4"] = { uri = "file:///home/user/Development/file3.twee", line = 14 },
+      },
     },
     buf_symbols = {
-      ["buf_example1"] = { type = "widget", uri = "file:///home/user/Development/buf_file.twee", line = 20 },
-      ["buf_example2"] = { type = "variable", uri = "file:///home/user/Development/buf_file.twee", line = 45 },
+      variable = {
+        ["buf_example1"] = { uri = "file:///home/user/Development/buf_file.twee", line = 20 },
+        ["buf_example2"] = { uri = "file:///home/user/Development/buf_file.twee", line = 45 },
+      },
     },
   }
 
   it("should return a table containing type, uri, and line", function()
     local expected = {
-      type = "variable",
       uri = "file:///home/user/Development/file1.twee",
       line = 5,
     }

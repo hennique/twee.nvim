@@ -2,11 +2,14 @@ local utils = require("twee.utils")
 
 local M = {}
 
----@param sym table<string, twee.Symbol>
-local function add_core_symbols(sym)
+---@param symbols twee.SymbolsTbl.Symbols
+local function add_core_symbols(symbols)
   -- ======================================
   -- =============== MACROS ===============
   -- ======================================
+
+  ---@type table<string, twee.Symbol>
+  local sym = symbols["widget"]
 
   -- Variables macros
   sym["capture"] = {
@@ -235,6 +238,9 @@ local function add_core_symbols(sym)
   -- =============== FUNCTIONS ===============
   -- =========================================
 
+  ---@type table<string, twee.Symbol>
+  sym = symbols["function"]
+
   sym["clone"] = {
     type = "function",
     documentation = "Returns a deep copy of the given value.\n\n- `original`: (`any`) The value to clone.",
@@ -341,33 +347,10 @@ local function add_core_symbols(sym)
   }
 end
 
--- Structure of content/files_content
--- files_content = {
---  twee_content = {
---    file_uri1 = file_content1,
---    file_uri2 = file_content2,
---    ...
---    file_uriN = file_contentN
---  },
---  js_content = the same
--- }
-
--- Structure of symbols
--- symbols = {
---  global_symbols = {
---    symbol_name1 = {type=type1,uri=uri1,line=line1, ...},
---    symbol_name2 = {type=type2,uri=uri2,line=line2, ...},
---    ...
---    symbol_nameN = {type=typeN,uri=uriN,line=lineN, ...}
---  }
---  buf_symbols = the same,
---  ...
--- }
-
 --- Loads contents of twee and javascript files, and symbols of twee files.
 ---@param path string Path to begin searching from
 ---@param content table Table to save contents of files
----@param symbols table Table to save all symbols found
+---@param symbols twee.SymbolsTbl Table to save all symbols found
 ---@param callback? function Callback function to call after files loaded
 function M.load_files(path, content, symbols, callback)
   vim.schedule(function()
@@ -403,7 +386,12 @@ function M.load_files(path, content, symbols, callback)
       return string.match(name, ".*twee%-config%.yml$")
     end, { limit = math.huge, type = "file", path = path })
 
-    symbols["global_symbols"] = {}
+    symbols["global_symbols"] = {
+      widget = {},
+      ["function"] = {},
+      passage = {},
+      variable = {},
+    }
 
     local global_symbol = symbols["global_symbols"]
 
@@ -443,9 +431,9 @@ function M.load_files(path, content, symbols, callback)
           for symbol, value in string.gmatch(file_content, "<<set $([a-zA-Z_.]+) %S+ (.-)>>") do
             local variable_tbl = vim.split(symbol, "%.") or { symbol, nil }
 
-            local item = global_symbol[variable_tbl[1]] or {}
+            local item = global_symbol["variable"][variable_tbl[1]] or {}
             local next_var = item.next or {}
-            global_symbol[variable_tbl[1]] =
+            global_symbol["variable"][variable_tbl[1]] =
               { type = "variable", uri = file_uri, line = 1, ["next"] = next_var, value = value }
 
             for j = 2, #variable_tbl do
@@ -458,8 +446,7 @@ function M.load_files(path, content, symbols, callback)
             local deprecated = yml["sugarcube-2"]["macros"][symbol]["deprecated"] or false
             local deprecated_suggestions = yml["sugarcube-2"]["macros"][symbol]["deprecatedSuggestions"] or nil
 
-            ---@type twee.Symbol
-            global_symbol[symbol] = {
+            global_symbol["widget"][symbol] = {
               type = "widget",
               uri = file_uri,
               line = 1,
@@ -469,7 +456,7 @@ function M.load_files(path, content, symbols, callback)
             }
           end
           for symbol in string.gmatch(file_content, ":: (%w+)") do
-            global_symbol[symbol] = { type = "passage", uri = file_uri, line = 1 }
+            global_symbol["passage"][symbol] = { type = "passage", uri = file_uri, line = 1 }
           end
 
           vim.uv.fs_close(fd)
@@ -495,13 +482,18 @@ end
 
 --- Reloads contents and symbols of the current file
 ---@param content table
----@param symbols table
+---@param symbols twee.SymbolsTbl
 function M.reload_current_file(content, symbols)
   local uri = vim.uri_from_bufnr(0)
   local file_content = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
   content.twee_content[uri] = file_content
-  symbols["buf_symbols"] = {}
+  symbols["buf_symbols"] = {
+    variable = {},
+    ["function"] = {},
+    passage = {},
+    widget = {},
+  }
 
   local buf_symbol = symbols["buf_symbols"]
 
@@ -511,9 +503,9 @@ function M.reload_current_file(content, symbols)
     for symbol, value in string.gmatch(line, "<<set $([a-zA-Z_.]+) %S+ (.-)>>") do
       local variable_tbl = vim.split(symbol, "%.") or { symbol, nil }
 
-      local item = buf_symbol[variable_tbl[1]] or {}
+      local item = buf_symbol["variable"][variable_tbl[1]] or {}
       local next_var = item.next or {}
-      buf_symbol[variable_tbl[1]] = { type = "variable", uri = uri, line = i, ["next"] = next_var, value = value }
+      buf_symbol["variable"][variable_tbl[1]] = { uri = uri, line = i, ["next"] = next_var, value = value }
 
       for j = 2, #variable_tbl do
         next_var[variable_tbl[j]] = next_var[variable_tbl[j]] or {}
@@ -521,10 +513,10 @@ function M.reload_current_file(content, symbols)
       end
     end
     for symbol in string.gmatch(line, '<<widget "([a-zA-Z_]+)">>') do
-      buf_symbol[symbol] = { type = "widget", uri = uri, line = i }
+      buf_symbol["widget"][symbol] = { uri = uri, line = i }
     end
     for symbol in string.gmatch(line, ":: (%w+)") do
-      buf_symbol[symbol] = { type = "passage", uri = uri, line = i }
+      buf_symbol["passage"][symbol] = { uri = uri, line = i }
     end
   end
 end
