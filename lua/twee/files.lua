@@ -440,12 +440,13 @@ function M.load_files(path, content, symbols, callback)
 
           content[file_ext][file_uri] = file_lines
 
-          for symbol in string.gmatch(file_content, "<<set $([a-zA-Z_.]+)") do
+          for symbol, value in string.gmatch(file_content, "<<set $([a-zA-Z_.]+) %S+ (.-)>>") do
             local variable_tbl = vim.split(symbol, "%.") or { symbol, nil }
 
             local item = global_symbol[variable_tbl[1]] or {}
             local next_var = item.next or {}
-            global_symbol[variable_tbl[1]] = { type = "variable", uri = file_uri, line = 1, ["next"] = next_var }
+            global_symbol[variable_tbl[1]] =
+              { type = "variable", uri = file_uri, line = 1, ["next"] = next_var, value = value }
 
             for j = 2, #variable_tbl do
               next_var[variable_tbl[j]] = next_var[variable_tbl[j]] or {}
@@ -507,12 +508,12 @@ function M.reload_current_file(content, symbols)
   add_core_symbols(buf_symbol)
 
   for i, line in ipairs(file_content) do
-    for symbol in string.gmatch(line, "<<set $([a-zA-Z_.]+)") do
+    for symbol, value in string.gmatch(line, "<<set $([a-zA-Z_.]+) %S+ (.-)>>") do
       local variable_tbl = vim.split(symbol, "%.") or { symbol, nil }
 
       local item = buf_symbol[variable_tbl[1]] or {}
       local next_var = item.next or {}
-      buf_symbol[variable_tbl[1]] = { type = "variable", uri = uri, line = i, ["next"] = next_var }
+      buf_symbol[variable_tbl[1]] = { type = "variable", uri = uri, line = i, ["next"] = next_var, value = value }
 
       for j = 2, #variable_tbl do
         next_var[variable_tbl[j]] = next_var[variable_tbl[j]] or {}

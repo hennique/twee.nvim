@@ -10,6 +10,8 @@
 ---@field closed? boolean For widgets. Defines if the widget needs to close with <</widgetName>>
 ---@field insert_text? string
 ---@field parameters? string[] For functions. A table containing all parameters of a function
+---@field next? table For variables. Stores all attributes of a variable
+---@field value? any For variables. Stores the value of the variable
 
 local M = {}
 
@@ -75,7 +77,9 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
         vim.list_extend(completion_table, {
           {
             label = item,
+            detail = "$" .. item,
             kind = vim.lsp.protocol.CompletionItemKind.Variable,
+            documentation = sym_tbl.value,
           },
         })
 
