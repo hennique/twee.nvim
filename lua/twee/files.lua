@@ -349,7 +349,7 @@ end
 
 --- Loads contents of twee and javascript files, and symbols of twee files.
 ---@param path string Path to begin searching from
----@param content table Table to save contents of files
+---@param content twee.ContentTbl Table to save contents of files
 ---@param symbols twee.SymbolsTbl Table to save all symbols found
 ---@param callback? function Callback function to call after files loaded
 function M.load_files(path, content, symbols, callback)
@@ -481,7 +481,7 @@ function M.load_files(path, content, symbols, callback)
 end
 
 --- Reloads contents and symbols of the current file
----@param content table
+---@param content twee.ContentTbl
 ---@param symbols twee.SymbolsTbl
 function M.reload_current_file(content, symbols)
   local uri = vim.uri_from_bufnr(0)

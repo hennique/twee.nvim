@@ -22,6 +22,10 @@
 ---@field buf_symbols twee.SymbolsTbl.Symbols
 ---@field global_symbols twee.SymbolsTbl.Symbols
 
+---@class twee.ContentTbl
+---@field twee_content table<string, table>
+---@field js_content table<string, table>
+
 local M = {}
 
 --- Add a type of symbol to a CompletionItem[] table.
@@ -194,7 +198,7 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
 end
 
 --- Search for a pattern in a content and return a Location[] table of all results.
----@param content table Content to search
+---@param content twee.ContentTbl Content to search
 ---@param pattern string Pattern to search
 ---@param opts? { only_current_buffer: boolean }
 ---@return lsp.Location[]|nil
@@ -372,7 +376,7 @@ function M.get_pos_hl_group(bufnr, row, col, opts)
   return hl_group
 end
 
----@param content table Twee content to search
+---@param content twee.ContentTbl Twee content to search
 ---@param symbols twee.SymbolsTbl
 function M.get_story_data(content, symbols)
   local story_data_symbol = M.get_symbol(symbols, "StoryData")
