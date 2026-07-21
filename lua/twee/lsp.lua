@@ -588,6 +588,28 @@ M.start = function(config)
       vim.diagnostic.set(namespace, buffer, diagnostic)
     end,
   })
+
+  vim.api.nvim_create_autocmd({ "BufWritePre" }, {
+    pattern = filetype,
+    group = vim.api.nvim_create_augroup("twee-nvim-remove-whitespace", { clear = true }),
+    callback = function()
+      local buf_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
+
+      local lines_to_remove = {}
+
+      for i, line in ipairs(buf_lines) do
+        local next_line = buf_lines[i + 1]
+
+        if line == "" and (next_line == "" or next_line == nil) then
+          table.insert(lines_to_remove, i)
+        end
+      end
+
+      for i = #lines_to_remove, 1, -1 do
+        vim.fn.deletebufline(vim.fn.bufname(0), lines_to_remove[i])
+      end
+    end,
+  })
 end
 
 return M
