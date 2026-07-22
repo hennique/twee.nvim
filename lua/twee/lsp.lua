@@ -313,49 +313,10 @@ methods["textDocument/completion"] = function(params, callback)
         insertText = "<div>\n$0\n</div>",
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
-      {
-        label = "and",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "or",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "is",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "lt",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "lte",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "gt",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "gte",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "true",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "false",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
-      {
-        label = "to",
-        kind = vim.lsp.protocol.CompletionItemKind.Keyword,
-      },
     }
 
     utils.add_symbols_to_completion_table(symbols, "function", items)
+    utils.add_symbols_to_completion_table(symbols, "keyword", items)
 
     completion = {
       isIncomplete = true,

@@ -1,4 +1,4 @@
----@alias twee.Symbol.Type "widget"|"variable"|"passage"|"function"
+---@alias twee.Symbol.Type "widget"|"variable"|"passage"|"function"|"keyword"
 
 ---@class twee.Symbol
 ---@field uri? string
@@ -17,6 +17,7 @@
 ---@field variable table<string, twee.Symbol>
 ---@field passage table<string, twee.Symbol>
 ---@field function table<string, twee.Symbol>
+---@field keyword table<string, twee.Symbol>
 
 ---@class twee.SymbolsTbl
 ---@field buf_symbols twee.SymbolsTbl.Symbols
@@ -36,6 +37,9 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
   local added = {}
 
   for _, symbol_tbl in pairs(symbols) do
+    ---@type twee.SymbolsTbl.Symbols
+    symbol_tbl = symbol_tbl
+
     if type == "chain" then
       local line = vim.fn.getline(".")
       local var
@@ -54,6 +58,10 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
       end
 
       local next_var = symbol_tbl["variable"][var_tbl[1]].next
+
+      if next_var == nil then
+        goto continue
+      end
 
       if #var_tbl > 1 then
         for i = 2, #var_tbl do
@@ -189,8 +197,27 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
         vim.list_extend(completion_table, { tbl })
 
         added[item] = true
+        ::continue::
       end
-      ::continue::
+    elseif type == "keyword" then
+      for item, sym_tbl in pairs(symbol_tbl["keyword"]) do
+        ---@type twee.Symbol
+        sym_tbl = sym_tbl
+
+        if added[item] then
+          goto continue
+        end
+
+        vim.list_extend(completion_table, {
+          {
+            label = item,
+            kind = vim.lsp.protocol.CompletionItemKind.Keyword,
+          },
+        })
+
+        added[item] = true
+        ::continue::
+      end
     end
 
     ::continue::

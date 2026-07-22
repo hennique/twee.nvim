@@ -4,12 +4,32 @@ local M = {}
 
 ---@param symbols twee.SymbolsTbl.Symbols
 local function add_core_symbols(symbols)
+  local sym
+
+  -- ======================================
+  -- =============== KEYWORDS ===============
+  -- ======================================
+
+  ---@type table<string, twee.Symbol>
+  sym = symbols["keyword"]
+
+  sym["to"] = {}
+  sym["is"] = {}
+  sym["gt"] = {}
+  sym["gte"] = {}
+  sym["lt"] = {}
+  sym["lte"] = {}
+  sym["and"] = {}
+  sym["or"] = {}
+  sym["true"] = {}
+  sym["false"] = {}
+
   -- ======================================
   -- =============== MACROS ===============
   -- ======================================
 
   ---@type table<string, twee.Symbol>
-  local sym = symbols["widget"]
+  sym = symbols["widget"]
 
   -- Variables macros
   sym["capture"] = {
@@ -391,6 +411,7 @@ function M.load_files(path, content, symbols, callback)
       ["function"] = {},
       passage = {},
       variable = {},
+      keyword = {},
     }
 
     local global_symbol = symbols["global_symbols"]
@@ -493,6 +514,7 @@ function M.reload_current_file(content, symbols)
     ["function"] = {},
     passage = {},
     widget = {},
+    keyword = {},
   }
 
   local buf_symbol = symbols["buf_symbols"]
