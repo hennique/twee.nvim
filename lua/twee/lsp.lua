@@ -171,6 +171,37 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
+        label = "set",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<set $0>>",
+        insertText = "<<set $0>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "set ... to",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<set $1 to $0>>",
+        insertText = "<<set $1 to $0>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "print",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<print $0>>",
+        textEdit = {
+          newText = "<<print $0>>",
+          range = utils.make_textEdit_range("print"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "silent",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<silent>>\n\t$0\n<</silent>>",
+        insertText = "<<silent>>\n\t$0\n<</silent>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
         label = "if",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
         detail = "<<if $1>>\n\t$0\n<</if>>",
@@ -187,17 +218,11 @@ methods["textDocument/completion"] = function(params, callback)
       {
         label = "else",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<else>>",
         textEdit = {
           newText = "<<else>>",
           range = utils.make_textEdit_range("else"),
         },
-      },
-      {
-        label = "widget",
-        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
-        detail = '<<widget "$1">>\n\t$0\n<</widget>>',
-        insertText = '<<widget "$1">>\n\t$0\n<</widget>>',
-        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
         label = "for",
@@ -214,34 +239,56 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
-        label = "set ... to",
+        label = "break",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
-        detail = "<<set $1 to $0>>",
-        insertText = "<<set $1 to $0>>",
-        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
-      },
-      {
-        label = "set",
-        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
-        detail = "<<set $0>>",
-        insertText = "<<set $0>>",
-        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+        detail = "<<break>>",
+        textEdit = {
+          newText = "<<break>>",
+          range = utils.make_textEdit_range("break"),
+        },
       },
       {
         label = "continue",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<continue>>",
         textEdit = {
           newText = "<<continue>>",
           range = utils.make_textEdit_range("continue"),
         },
       },
       {
-        label = "print",
+        label = "switch",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<switch ${1:expr}>>\n\t<<case ${2:valueList}>>\n\t\t$3\n\t<<default>>\n\t\t$0\n<</switch>>",
+        insertText = "<<switch ${1:expr}>>\n\t<<case ${2:valueList}>>\n\t\t$3\n\t<<default>>\n\t\t$0\n<</switch>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "back",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<back $0>>",
         textEdit = {
-          newText = "<<print>>",
-          range = utils.make_textEdit_range("print"),
+          newText = "<<back $0>>",
+          range = utils.make_textEdit_range("back"),
         },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "return",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<return $0>>",
+        textEdit = {
+          newText = "<<return $0>>",
+          range = utils.make_textEdit_range("return"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "widget",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = '<<widget "$1">>\n\t$0\n<</widget>>',
+        insertText = '<<widget "$1">>\n\t$0\n<</widget>>',
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
         label = "br",
