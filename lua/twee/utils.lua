@@ -519,7 +519,24 @@ function M.make_textEdit_range(label)
   for text_len = label:len(), 1, -1 do
     local match = string.sub(line, math.max(col - (text_len - 1), 0), col):lower()
 
-    if string.match(label, match) then
+    local label_int = 0
+
+    for _, num in ipairs({ string.byte(label, 1, -1) }) do
+      label_int = label_int + num
+    end
+
+    local match_int = 0
+
+    for _, num in ipairs({ string.byte(match, 1, -1) }) do
+      -- Prevents textEdit from replacing the wrong characters
+      if vim.list_contains({ string.byte('".$+-/:<>=[]{}', 1, -1) }, num) then
+        match_int = match_int + label_int
+      end
+
+      match_int = match_int + num
+    end
+
+    if label_int >= match_int then
       char_col = math.max(char_col - text_len, 0)
       break
     end
