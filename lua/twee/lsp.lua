@@ -185,6 +185,26 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
+        label = "equal",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<= $0>>",
+        textEdit = {
+          newText = "<<= $0>>",
+          range = utils.make_textEdit_range("equal"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "minus",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<- $0>>",
+        textEdit = {
+          newText = "<<- $0>>",
+          range = utils.make_textEdit_range("minus"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
         label = "print",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
         detail = "<<print $0>>",
