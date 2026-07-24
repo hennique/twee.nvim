@@ -1,8 +1,11 @@
 local M = {}
 
+---@class twee.SetupConfig
+---@field formatting boolean Defines if the file will be formatted on save
+
 M.did_setup = false
 
----@param config? table
+---@param config? twee.SetupConfig
 function M.setup(config)
   config = config or {}
 
