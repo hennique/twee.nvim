@@ -1,7 +1,7 @@
 local M = {}
 
 ---@param config? table
-M.setup = function(config)
+function M.setup(config)
   config = config or {}
   config.formatting = config.formatting or true
 
