@@ -2,7 +2,12 @@ vim.api.nvim_create_autocmd({ "BufNewFile", "BufRead" }, {
   group = vim.api.nvim_create_augroup("twee-nvim-init", { clear = true }),
   pattern = { "*.twee", "*.tw" },
   callback = function()
-    require("twee").setup()
+    local twee = require("twee")
+
+    if not twee.did_setup then
+      twee.setup()
+    end
+
     require("twee.filetype").set()
     require("twee.lsp").start()
   end,
