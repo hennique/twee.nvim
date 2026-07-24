@@ -621,6 +621,10 @@ M.start = function(config)
     pattern = filetype,
     group = vim.api.nvim_create_augroup("twee-nvim-remove-whitespace", { clear = true }),
     callback = function()
+      if vim.g.twee_formatting == false then
+        return
+      end
+
       local buf_lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
 
       local lines_to_remove = {}
