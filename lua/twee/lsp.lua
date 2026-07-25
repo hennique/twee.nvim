@@ -619,7 +619,7 @@ M.start = function(config)
 
   vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     pattern = filetype,
-    group = vim.api.nvim_create_augroup("twee-nvim-remove-whitespace", { clear = true }),
+    group = vim.api.nvim_create_augroup("twee-nvim-formatting", { clear = true }),
     callback = function()
       if vim.g.twee_formatting == false then
         return
