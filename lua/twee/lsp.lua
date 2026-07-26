@@ -171,6 +171,13 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
+        label = "capture",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<capture $1>>\n\t$0\n<</capture>>",
+        insertText = "<<capture $1>>\n\t$0\n<</capture>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
         label = "set",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
         detail = "<<set $0>>",
@@ -182,6 +189,33 @@ methods["textDocument/completion"] = function(params, callback)
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
         detail = "<<set $1 to $0>>",
         insertText = "<<set $1 to $0>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "unset",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<unset $0>>",
+        textEdit = {
+          newText = "<<unset $0>>",
+          range = utils.make_textEdit_range("unset"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "run",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<run $0>>",
+        textEdit = {
+          newText = "<<run $0>>",
+          range = utils.make_textEdit_range("run"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "script",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<script ${1|JavaScript,TwineScript|}>>\n\t$0\n<</script>>",
+        insertText = "<<script ${1|JavaScript,TwineScript|}>>\n\t$0\n<</script>>",
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
