@@ -239,6 +239,30 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
+        label = "do",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<do>>\n\t$0\n<</do>>",
+        insertText = "<<do>>\n\t$0\n<</do>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "include",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<include $0>>",
+        textEdit = {
+          newText = "<<include $0>>",
+          range = utils.make_textEdit_range("include"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "nobr",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<nobr>>\n\t$0\n<</nobr>>",
+        insertText = "<<nobr>>\n\t$0\n<</nobr>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
         label = "print",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
         detail = "<<print $0>>",
@@ -249,10 +273,27 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
+        label = "redo",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<redo $0>>",
+        textEdit = {
+          newText = "<<redo $0>>",
+          range = utils.make_textEdit_range("redo"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
         label = "silent",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
         detail = "<<silent>>\n\t$0\n<</silent>>",
         insertText = "<<silent>>\n\t$0\n<</silent>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "type",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<type $1>>\n\t$0\n<</type>>",
+        insertText = "<<type $1>>\n\t$0\n<</type>>",
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
