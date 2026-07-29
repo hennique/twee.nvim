@@ -529,7 +529,7 @@ function M.make_textEdit_range(label)
 
     for _, num in ipairs({ string.byte(match, 1, -1) }) do
       -- Prevents textEdit from replacing the wrong characters
-      if vim.list_contains({ string.byte('".$+-/:<>=[]{}', 1, -1) }, num) then
+      if vim.list_contains({ string.byte('".$+-/:<>=[]{}\t', 1, -1) }, num) then
         match_int = match_int + label_int
       end
 
