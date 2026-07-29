@@ -478,6 +478,54 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
+        label = "done",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<done>>\n\t$0\n<</done>>",
+        insertText = "<<done>>\n\t$0\n<</done>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "goto",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<goto $0>>",
+        textEdit = {
+          newText = "<<goto $0>>",
+          range = utils.make_textEdit_range("goto"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "repeat",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<repeat $1>>\n\t$0\n<</repeat>>",
+        insertText = "<<repeat $1>>\n\t$0\n<</repeat>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "stop",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        textEdit = {
+          newText = "<<stop>>",
+          range = utils.make_textEdit_range("stop"),
+        },
+      },
+      {
+        label = "timed",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<timed $1>>\n\t$0\n<</timed>>",
+        insertText = "<<timed $1>>\n\t$0\n<</timed>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "next",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        textEdit = {
+          newText = "<<next $0>>",
+          range = utils.make_textEdit_range("next"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
         label = "widget",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
         detail = '<<widget "$1">>\n\t$0\n<</widget>>',
