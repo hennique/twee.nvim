@@ -478,6 +478,77 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       {
+        label = "addclass",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<addclass $0>>",
+        textEdit = {
+          newText = "<<addclass $0>>",
+          range = utils.make_textEdit_range("addclass"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "append",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<append $1>>\n\t$0\n<</append>>",
+        insertText = "<<append $1>>\n\t$0\n<</append>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "copy",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<copy $0>>",
+        textEdit = {
+          newText = "<<copy $0>>",
+          range = utils.make_textEdit_range("copy"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "prepend",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<prepend $1>>\n\t$0\n<</prepend>>",
+        insertText = "<<prepend $1>>\n\t$0\n<</prepend>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "remove",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<remove $0>>",
+        textEdit = {
+          newText = "<<remove $0>>",
+          range = utils.make_textEdit_range("remove"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "removeclass",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<removeclass $0>>",
+        textEdit = {
+          newText = "<<removeclass $0>>",
+          range = utils.make_textEdit_range("removeclass"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "replace",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<replace $1>>\n\t$0\n<</replace>>",
+        insertText = "<<replace $1>>\n\t$0\n<</replace>>",
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
+        label = "toggleclass",
+        kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+        detail = "<<toggleclass $0>>",
+        textEdit = {
+          newText = "<<toggleclass $0>>",
+          range = utils.make_textEdit_range("toggleclass"),
+        },
+        insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+      },
+      {
         label = "done",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
         detail = "<<done>>\n\t$0\n<</done>>",
