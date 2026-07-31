@@ -491,6 +491,40 @@ function M.make_range(start_line, start_character, end_line, end_character)
   return range
 end
 
+--- Returns a snippet with the format:
+--- ```lua
+--- {
+---   label = "name",
+---   kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+---   detail = "<<name $0>>" or "<<name>>"
+---   textEdit = {
+---     newText = "<<name $0>>" or "<<name>>",
+---     range = M.make_textEdit_range("name"),
+---   },
+---   insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet
+--- }
+--- ```
+---@param name string The snippet name
+---@param has_tab_stop? boolean If true, the detail and textEdit field will include "$0". It is true by default
+function M.make_snippet(name, has_tab_stop)
+  if has_tab_stop == nil then
+    has_tab_stop = true
+  end
+
+  local snippet = {
+    label = name,
+    kind = vim.lsp.protocol.CompletionItemKind.Snippet,
+    detail = has_tab_stop and ("<<%s $0>>"):format(name) or ("<<%s>>"):format(name),
+    textEdit = {
+      newText = has_tab_stop and ("<<%s $0>>"):format(name) or ("<<%s>>"):format(name),
+      range = M.make_textEdit_range(name),
+    },
+    insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
+  }
+
+  return snippet
+end
+
 --- Makes a textEdit range table
 ---
 --- Example:
