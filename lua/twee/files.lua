@@ -168,6 +168,35 @@ local function add_core_symbols(symbols)
     documentation = "Creates a link that navigates forward to a previously visited passage. May be called with, optional, the link text and passage name as separate arguments, a link markup, or an image markup.",
   }
 
+  -- DOM macros
+  sym["addclass"] = {
+    documentation = "Adds classes to the selected element(s).",
+  }
+  sym["append"] = {
+    closed = true,
+    documentation = "Executes its contents and appends the output to the contents of the selected element(s).",
+  }
+  sym["copy"] = {
+    documentation = "Outputs a copy of the contents of the selected element(s).",
+  }
+  sym["prepend"] = {
+    closed = true,
+    documentation = "Executes its contents and prepends the output to the contents of the selected element(s).",
+  }
+  sym["remove"] = {
+    documentation = "Removes the selected element(s).",
+  }
+  sym["removeclass"] = {
+    documentation = "Removes classes from the selected element(s).",
+  }
+  sym["replace"] = {
+    closed = true,
+    documentation = "Executes its contents and replaces the contents of the selected element(s) with the output.",
+  }
+  sym["toggleclass"] = {
+    documentation = "Toggles classes on the selected element(s), i.e., adding them if they don't exist, removing them if they do.",
+  }
+
   -- Miscellaneous macros
   sym["done"] = {
     closed = true,
