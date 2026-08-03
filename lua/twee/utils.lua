@@ -491,7 +491,7 @@ function M.make_range(start_line, start_character, end_line, end_character)
   return range
 end
 
---- Returns a snippet with the format:
+--- Returns a snippet with the following format:
 --- ```lua
 --- {
 ---   label = "name",
