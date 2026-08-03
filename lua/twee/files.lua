@@ -197,6 +197,38 @@ local function add_core_symbols(symbols)
     documentation = "Toggles classes on the selected element(s), i.e., adding them if they don't exist, removing them if they do.",
   }
 
+  -- Audio macros
+  sym["audio"] = {
+    documentation = "Controls the playback of audio tracks, which must be set up via `<<cacheaudio>>`.",
+  }
+  sym["cacheaudio"] = {
+    documentation = "Caches an audio track for use by the other audio macros.",
+  }
+  sym["createaudiogroup"] = {
+    closed = true,
+    documentation = "Collects tracks, which must be set up via `<<cacheaudio>>`, into a group via its `<<track>>` children. Groups are useful for applying actions to multiple tracks simultaneously and/or excluding the included tracks from a larger set when applying actions.",
+  }
+  sym["createplaylist"] = {
+    closed = true,
+    documentation = "Collects tracks, which must be set up via `<<cacheaudio>>`, into a playlist via its `<<track>>` children.",
+  }
+  sym["track"] = {}
+  sym["masteraudio"] = {
+    documentation = "Controls the master audio settings.",
+  }
+  sym["playlist"] = {
+    documentation = "Controls the playback of the playlist, which must be set up via `<<createplaylist>>`.",
+  }
+  sym["removeaudiogroup"] = {
+    documentation = "Removes the audio group with the given ID.",
+  }
+  sym["removeplaylist"] = {
+    documentation = "Removes the playlist with the given ID.",
+  }
+  sym["waitforaudio"] = {
+    documentation = "Displays the loading screen until all currently registered audio has either loaded to a playable state or aborted loading due to errors. Requires tracks to be set up via `<<cacheaudio>>`.",
+  }
+
   -- Miscellaneous macros
   sym["done"] = {
     closed = true,
