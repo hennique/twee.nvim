@@ -253,7 +253,7 @@ methods["textDocument/completion"] = function(params, callback)
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
       utils.make_snippet("elseif"),
-      utils.make_snippet("else", false),
+      utils.make_snippet("else", { has_tab_stop = false }),
       {
         label = "for",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
@@ -268,8 +268,8 @@ methods["textDocument/completion"] = function(params, callback)
         insertText = "<<for ${1:_i} to 0; ${2:_i} lt ${3:x}; ${4:_i}++>>\n\t$0\n<</for>>",
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
-      utils.make_snippet("break", false),
-      utils.make_snippet("continue", false),
+      utils.make_snippet("break", { has_tab_stop = false }),
+      utils.make_snippet("continue", { has_tab_stop = false }),
       {
         label = "switch",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
@@ -379,7 +379,7 @@ methods["textDocument/completion"] = function(params, callback)
       utils.make_snippet("playlist"),
       utils.make_snippet("removeaudiogroup"),
       utils.make_snippet("removeplaylist"),
-      utils.make_snippet("waitforaudio", false),
+      utils.make_snippet("waitforaudio", { has_tab_stop = false }),
       {
         label = "done",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
@@ -395,7 +395,7 @@ methods["textDocument/completion"] = function(params, callback)
         insertText = "<<repeat $1>>\n\t$0\n<</repeat>>",
         insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
       },
-      utils.make_snippet("stop", false),
+      utils.make_snippet("stop", { has_tab_stop = false }),
       {
         label = "timed",
         kind = vim.lsp.protocol.CompletionItemKind.Snippet,
