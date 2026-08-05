@@ -492,42 +492,47 @@ function M.make_range(start_line, start_character, end_line, end_character)
 end
 
 ---@class twee.MakeSnippet.Opts
----@field has_tab_stop boolean If true, the detail and textEdit field will include "$0". It is true by default
+---@field has_tab_stop boolean If true, the detail and newText field will include "$0". It is true by default
 
 --- Returns a snippet with the following format:
 --- ```lua
 --- {
----   label = "name",
+---   label = "label",
 ---   kind = vim.lsp.protocol.CompletionItemKind.Snippet,
----   detail = "<<name $0>>" or "<<name>>"
+---   detail = "snippet" or "<<label $0>>" or "<<label>>"
 ---   textEdit = {
----     newText = "<<name $0>>" or "<<name>>",
----     range = M.make_textEdit_range("name"),
+---     newText = "snippet" or "<<label $0>>" or "<<label>>",
+---     range = M.make_textEdit_range("label"),
 ---   },
 ---   insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet
 --- }
 --- ```
----@param name string The snippet name
+---@param label string The string used as the snippet's label
+---@param snippet? string The snippet used in `detail` and `newText`. It is "<<label $0>>" or "<<label>>" by default
 ---@param opts? twee.MakeSnippet.Opts
-function M.make_snippet(name, opts)
+function M.make_snippet(label, snippet, opts)
   opts = opts or {}
 
   if opts.has_tab_stop == nil then
     opts.has_tab_stop = true
   end
 
-  local snippet = {
-    label = name,
+  if snippet == nil then
+    snippet = opts.has_tab_stop and ("<<%s $0>>"):format(label) or ("<<%s>>"):format(label)
+  end
+
+  local final_snippet = {
+    label = label,
     kind = vim.lsp.protocol.CompletionItemKind.Snippet,
-    detail = opts.has_tab_stop and ("<<%s $0>>"):format(name) or ("<<%s>>"):format(name),
+    detail = snippet,
     textEdit = {
-      newText = opts.has_tab_stop and ("<<%s $0>>"):format(name) or ("<<%s>>"):format(name),
-      range = M.make_textEdit_range(name),
+      newText = snippet,
+      range = M.make_textEdit_range(label),
     },
     insertTextFormat = vim.lsp.protocol.InsertTextFormat.Snippet,
   }
 
-  return snippet
+  return final_snippet
 end
 
 --- Makes a textEdit range table
