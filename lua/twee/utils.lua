@@ -12,11 +12,16 @@
 ---@field next? table For variables. Stores all attributes of a variable
 ---@field value? any For variables. Stores the value of the variable
 
+---@class twee.SymbolsTbl.Symbols.Methods
+---@field array table<string, twee.Symbol>
+---@field string table<string, twee.Symbol>
+
 ---@class twee.SymbolsTbl.Symbols
 ---@field widget table<string, twee.Symbol>
 ---@field variable table<string, twee.Symbol>
 ---@field passage table<string, twee.Symbol>
 ---@field function table<string, twee.Symbol>
+---@field method twee.SymbolsTbl.Symbols.Methods
 ---@field keyword table<string, twee.Symbol>
 
 ---@class twee.SymbolsTbl
@@ -83,6 +88,45 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
 
         added[k] = true
       end
+
+      local value = item.value
+
+      if value == nil then
+        goto continue
+      end
+
+      local methods = symbol_tbl["method"]
+
+      if value:match('^".*"$') or value:match("^'.*'$") then
+        for method, method_tbl in pairs(methods["string"]) do
+          ---@type twee.Symbol
+          method_tbl = method_tbl
+
+          if added[method] then
+            goto continue
+          end
+
+          local tbl = {
+            label = method,
+            detail = method .. "()",
+            kind = vim.lsp.protocol.CompletionItemKind.Function,
+            insertText = method .. "()",
+          }
+
+          if method_tbl.parameters ~= nil then
+            tbl["detail"] = method .. "(" .. table.concat(method_tbl.parameters, ", ") .. ")"
+          end
+
+          if method_tbl.documentation ~= nil then
+            tbl["documentation"] = method_tbl.documentation
+          end
+
+          vim.list_extend(completion_table, { tbl })
+
+          added[method] = true
+        end
+      end
+
       goto continue
     end
 

@@ -359,6 +359,35 @@ local function add_core_symbols(symbols)
     documentation = "Returns the number of passages within the story history that are tagged with all of the given tags.\n\n- `tags`: (`string` | `Array<string>`) The tags to search for. May be a list or an array of tags.",
     parameters = { "tags..." },
   }
+
+  -- =======================================
+  -- =============== METHODS ===============
+  -- =======================================
+
+  -- String methods
+  ---@type table<string, twee.Symbol>
+  sym = symbols["method"]["string"]
+
+  sym["count"] = {
+    documentation = "Returns the number of times that the given substring was found within the string, starting the search at `position`.",
+    parameters = { "needle [, position]" },
+  }
+  sym["first"] = {
+    documentation = "Returns the first Unicode code point within the string. Does not modify the original.",
+  }
+  sym["includes"] = {
+    documentation = "Returns whether the given substring was found within the string, starting the search at `position`.",
+    parameters = { "needle [, position]" },
+  }
+  sym["last"] = {
+    documentation = "Returns the last Unicode code point within the string. Does not modify the original.",
+  }
+  sym["toLocaleUpperFirst"] = {
+    documentation = "Returns the string with its first Unicode code point converted to upper case, according to any locale-specific rules. Does not modify the original.",
+  }
+  sym["toUpperFirst"] = {
+    documentation = "Returns the string with its first Unicode code point converted to upper case. Does not modify the original.",
+  }
 end
 
 --- Loads contents of twee and javascript files, and symbols of twee files.
@@ -403,6 +432,10 @@ function M.load_files(path, content, symbols, callback)
     symbols["global_symbols"] = {
       widget = {},
       ["function"] = {},
+      method = {
+        array = {},
+        string = {},
+      },
       passage = {},
       variable = {},
       keyword = {},
@@ -505,6 +538,10 @@ function M.reload_current_file(content, symbols)
   symbols["buf_symbols"] = {
     variable = {},
     ["function"] = {},
+    method = {
+      array = {},
+      string = {},
+    },
     passage = {},
     widget = {},
     keyword = {},
