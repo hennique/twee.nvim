@@ -103,9 +103,9 @@ end
 ---@param params lsp.CompletionParams
 ---@param callback function
 methods["textDocument/completion"] = function(params, callback)
-  local hl_group = utils.get_pos_hl_group()
+  local hl_group = utils.get_pos_hl_group() or {}
 
-  if hl_group == "Comment" then
+  if vim.list_contains(hl_group, "Comment") then
     return callback(nil, nil)
   end
 
@@ -119,13 +119,16 @@ methods["textDocument/completion"] = function(params, callback)
   ---@type lsp.CompletionItem[]
   local completion = {}
 
-  if string.sub(line, math.max(col - 2, 0)) == "<<" or utils.get_pos_hl_group(0, row, col - 1) == "Conditional" then
+  if
+    string.sub(line, math.max(col - 2, 0)) == "<<"
+    or vim.list_contains(utils.get_pos_hl_group(0, row, col - 1) or {}, "Conditional")
+  then
     utils.add_symbols_to_completion_table(symbols, "widget", completion)
   elseif string.sub(line, math.max(col, 0), col) == "." then
-    if utils.get_pos_hl_group(0, row, col - 1) == "Identifier" then
+    if vim.list_contains(utils.get_pos_hl_group(0, row, col - 1) or {}, "Identifier") then
       utils.add_symbols_to_completion_table(symbols, "chain", completion)
     end
-  elseif trigger_character == "$" or utils.get_pos_hl_group(0, row, col - 1) == "Identifier" then
+  elseif trigger_character == "$" or vim.list_contains(utils.get_pos_hl_group(0, row, col - 1) or {}, "Identifier") then
     utils.add_symbols_to_completion_table(symbols, "variable", completion)
   elseif trigger_character == "<" then
     completion = {
@@ -265,11 +268,11 @@ methods["textDocument/definition"] = function(params, callback)
   ---@type table|nil
   local location = {}
 
-  if hl_group == "Conditional" then
+  if vim.list_contains(hl_group, "Conditional") then
     location = utils.find_location(files_content.twee_content, '<<widget "' .. current_word .. '"')
-  elseif hl_group == "Identifier" then
+  elseif vim.list_contains(hl_group, "Identifier") then
     location = utils.find_location(files_content.twee_content, "<<set $%f[%a]" .. current_word .. "%f[%A] ")
-  elseif hl_group == "Function" then
+  elseif vim.list_contains(hl_group, "Function") then
     location = utils.find_location(files_content.js_content, "function %f[%a]" .. current_word .. "%f[%A]%(.*%)")
   end
 
@@ -294,7 +297,7 @@ methods["textDocument/documentHighlight"] = function(params, callback)
   if string.match(current_line_content, "$%f[%a]" .. current_word .. "%f[%A]") then
     document_highlight =
       utils.find_location(files_content, "$%f[%a]" .. current_word .. "%f[%A]", { only_current_buffer = true })
-  elseif hl_group == "String" then
+  elseif vim.list_contains(hl_group, "String") then
     local str = utils.get_current_string()
 
     document_highlight = utils.find_location(files_content.twee_content, str, { only_current_buffer = true })
@@ -328,25 +331,25 @@ methods["textDocument/hover"] = function(params, callback)
     },
   }
 
-  if hl_group == "Title" then
+  if vim.list_contains(hl_group, "Title") then
     hover.contents.value = ("(passage) %s"):format(current_word)
-  elseif hl_group == "Identifier" then
-    hover.contents.value = ("(variable) %s"):format(current_word)
-  elseif hl_group == "Conditional" then
-    local widget = utils.get_symbol(symbols, current_word) or {}
-    local widget_closed = widget.closed and "<</" .. current_word .. ">>" or ""
-    local widget_docum = widget.documentation and "\n---\n" .. widget.documentation or ""
-
-    hover.contents.kind = "markdown"
-    hover.contents.value = ("```html\n<<%s>>%s\n```%s"):format(current_word, widget_closed, widget_docum)
-  elseif hl_group == "Function" then
+  elseif vim.list_contains(hl_group, "Function") then
     local func = utils.get_symbol(symbols, current_word) or {}
     local func_params = func.parameters and table.concat(func.parameters, ", ") or ""
     local func_docum = func.documentation and "\n---\n" .. func.documentation or ""
 
     hover.contents.kind = "markdown"
     hover.contents.value = ("```js\n%s(%s)\n```%s"):format(current_word, func_params, func_docum)
-  elseif hl_group == "String" then
+  elseif vim.list_contains(hl_group, "Identifier") then
+    hover.contents.value = ("(variable) %s"):format(current_word)
+  elseif vim.list_contains(hl_group, "Conditional") then
+    local widget = utils.get_symbol(symbols, current_word) or {}
+    local widget_closed = widget.closed and "<</" .. current_word .. ">>" or ""
+    local widget_docum = widget.documentation and "\n---\n" .. widget.documentation or ""
+
+    hover.contents.kind = "markdown"
+    hover.contents.value = ("```html\n<<%s>>%s\n```%s"):format(current_word, widget_closed, widget_docum)
+  elseif vim.list_contains(hl_group, "String") then
     local str = utils.get_current_string():sub(2, -2)
 
     hover.contents.value = ("%d bytes"):format(#str)

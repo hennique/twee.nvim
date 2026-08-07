@@ -401,7 +401,7 @@ end
 ---@class twee.get_pos_hl_group.Opts
 ---@field blacklist table Defines what highlight groups to ignore. See :help group-name.
 
---- Get the highlight group a position.
+--- Returns all the highlight groups of a position in a table.
 ---
 --- Example:
 ---
@@ -417,7 +417,7 @@ end
 ---@param row? integer row to get, 0-based. Defaults to the row of the current cursor
 ---@param col? integer col to get, 0-based. Defaults to the col of the current cursor
 ---@param opts? twee.get_pos_hl_group.Opts A table of options
----@return string|nil hl_group # The highlight group name. See :help group-name.
+---@return table|nil hl_group # A table with all highlight groups names. See :help group-name.
 function M.get_pos_hl_group(bufnr, row, col, opts)
   bufnr = bufnr or 0
 
@@ -434,13 +434,21 @@ function M.get_pos_hl_group(bufnr, row, col, opts)
 
   opts.blacklist = opts.blacklist or {}
 
-  if vim.inspect_pos(bufnr, row, col)["syntax"][1] == nil then
+  local syntax = vim.inspect_pos(bufnr, row, col)["syntax"]
+
+  if syntax[1] == nil then
     return nil
   end
 
-  local hl_group = vim.inspect_pos(bufnr, row, col)["syntax"][1]["hl_group"]
+  local hl_group = {}
 
-  if vim.list_contains(opts.blacklist, hl_group) then
+  for _, hl in ipairs(syntax) do
+    if not vim.list_contains(opts.blacklist, hl_group) then
+      table.insert(hl_group, hl["hl_group"])
+    end
+  end
+
+  if #hl_group == 0 then
     return nil
   end
 
