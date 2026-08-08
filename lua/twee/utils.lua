@@ -11,17 +11,14 @@
 ---@field parameters? string[] For functions. A table containing all parameters of a function
 ---@field next? table For variables. Stores all attributes of a variable
 ---@field value? any For variables. Stores the value of the variable
-
----@class twee.SymbolsTbl.Symbols.Methods
----@field array table<string, twee.Symbol>
----@field string table<string, twee.Symbol>
+---@field type? "array"|"string" For methods.
 
 ---@class twee.SymbolsTbl.Symbols
 ---@field widget table<string, twee.Symbol>
 ---@field variable table<string, twee.Symbol>
 ---@field passage table<string, twee.Symbol>
 ---@field function table<string, twee.Symbol>
----@field method twee.SymbolsTbl.Symbols.Methods
+---@field method table<string, twee.Symbol>
 ---@field keyword table<string, twee.Symbol>
 
 ---@class twee.SymbolsTbl
@@ -98,11 +95,11 @@ function M.add_symbols_to_completion_table(symbols, type, completion_table)
       local methods = symbol_tbl["method"]
 
       if value:match('^".*"$') or value:match("^'.*'$") then
-        for method, method_tbl in pairs(methods["string"]) do
+        for method, method_tbl in pairs(methods) do
           ---@type twee.Symbol
           method_tbl = method_tbl
 
-          if added[method] then
+          if added[method] or method_tbl.type ~= "string" then
             goto continue
           end
 

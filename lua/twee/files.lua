@@ -364,28 +364,34 @@ local function add_core_symbols(symbols)
   -- =============== METHODS ===============
   -- =======================================
 
-  -- String methods
   ---@type table<string, twee.Symbol>
-  sym = symbols["method"]["string"]
+  sym = symbols["method"]
 
+  -- String methods
   sym["count"] = {
+    type = "string",
     documentation = "Returns the number of times that the given substring was found within the string, starting the search at `position`.",
     parameters = { "needle [, position]" },
   }
   sym["first"] = {
+    type = "string",
     documentation = "Returns the first Unicode code point within the string. Does not modify the original.",
   }
   sym["includes"] = {
+    type = "string",
     documentation = "Returns whether the given substring was found within the string, starting the search at `position`.",
     parameters = { "needle [, position]" },
   }
   sym["last"] = {
+    type = "string",
     documentation = "Returns the last Unicode code point within the string. Does not modify the original.",
   }
   sym["toLocaleUpperFirst"] = {
+    type = "string",
     documentation = "Returns the string with its first Unicode code point converted to upper case, according to any locale-specific rules. Does not modify the original.",
   }
   sym["toUpperFirst"] = {
+    type = "string",
     documentation = "Returns the string with its first Unicode code point converted to upper case. Does not modify the original.",
   }
 end
@@ -432,10 +438,7 @@ function M.load_files(path, content, symbols, callback)
     symbols["global_symbols"] = {
       widget = {},
       ["function"] = {},
-      method = {
-        array = {},
-        string = {},
-      },
+      method = {},
       passage = {},
       variable = {},
       keyword = {},
@@ -538,10 +541,7 @@ function M.reload_current_file(content, symbols)
   symbols["buf_symbols"] = {
     variable = {},
     ["function"] = {},
-    method = {
-      array = {},
-      string = {},
-    },
+    method = {},
     passage = {},
     widget = {},
     keyword = {},
