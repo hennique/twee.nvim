@@ -99,7 +99,7 @@ describe("twee.utils.get_symbol", function()
     },
   }
 
-  it("should return a table containing type, uri, and line", function()
+  it("should return a table containing uri and line", function()
     local expected = {
       uri = "file:///home/user/Development/file1.twee",
       line = 5,

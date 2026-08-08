@@ -521,7 +521,7 @@ function M.get_story_data(content, symbols)
 end
 
 --- Searchs for a symbol in a table and returns it.
----@param symbols twee.SymbolsTbl
+---@param symbols table<string, twee.Symbol>
 ---@param name string Name of symbol
 ---@return twee.Symbol|nil
 function M.get_symbol(symbols, name)
