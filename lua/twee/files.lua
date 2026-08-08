@@ -365,33 +365,139 @@ local function add_core_symbols(symbols)
   -- =======================================
 
   ---@type table<string, twee.Symbol>
-  sym = symbols["method"]
+  sym = symbols["array_method"]
+
+  -- Array methods
+  sym["concat"] = {
+    documentation = "Concatenates one or more members to the end of the base array and returns the result as a new array. Does not modify the original.",
+    parameters = { "members.." },
+  }
+  sym["concatUnique"] = {
+    documentation = "Concatenates one or more unique members to the end of the base array and returns the result as a new array. Does not modify the original.",
+    parameters = { "members..." },
+  }
+  sym["count"] = {
+    documentation = "Returns the number of times that the given member was found within the array, starting the search at `position`.",
+    parameters = { "needle [, position]" },
+  }
+  sym["countWith"] = {
+    documentation = "Returns the number of times that members within the array pass the test implemented by the given predicate function.",
+    parameters = { "predicate [, thisArg]" },
+  }
+  sym["deleteAll"] = {
+    documentation = "Removes all instances of the given members from the array and returns a new array containing the removed members.",
+    parameters = { "needles..." },
+  }
+  sym["deleteAt"] = {
+    documentation = "Removes all of the members at the given indices from the array and returns a new array containing the removed members.",
+    parameters = { "indices..." },
+  }
+  sym["deleteFirst"] = {
+    documentation = "Removes the first instance of the given members from the array and returns a new array containing the removed members.",
+    parameters = { "needles..." },
+  }
+  sym["deleteLast"] = {
+    documentation = "Removes the last instance of the given members from the array and returns a new array containing the removed members.",
+    parameters = { "needles..." },
+  }
+  sym["deleteWith"] = {
+    documentation = "Removes all of the members from the array that pass the test implemented by the given predicate function and returns a new array containing the removed members.",
+    parameters = { "predicate [, thisArg]" },
+  }
+  sym["first"] = {
+    documentation = "Returns the first member from the array. Does not modify the original.",
+  }
+  sym["flat"] = {
+    documentation = "Returns a new array consisting of the source array with all sub-array elements concatenated into it recursively up to the given depth. Does not modify the original.",
+    parameters = { "depth" },
+  }
+  sym["flatMap"] = {
+    documentation = "Returns a new array consisting of the result of calling the given mapping function on every element in the source array and then concatenating all sub-array elements into it recursively up to a depth of `1`. Does not modify the original.",
+    parameters = { "callback [, thisArg]" },
+  }
+  sym["includes"] = {
+    documentation = "Returns whether the given member was found within the array, starting the search at `position`.",
+    parameters = { "needle [, position]" },
+  }
+  sym["includesAll"] = {
+    documentation = "Returns whether all of the given members were found within the array.",
+    parameters = { "needles..." },
+  }
+  sym["includesAny"] = {
+    documentation = "Returns whether any of the given members were found within the array.",
+    parameters = { "needles..." },
+  }
+  sym["last"] = {
+    documentation = "Returns the last member from the array. Does not modify the original.",
+  }
+  sym["pluck"] = {
+    documentation = "Removes and returns a random member from the base array.",
+  }
+  sym["pluckMany"] = {
+    documentation = "Randomly removes the given number of members from the base array and returns the removed members as a new array.",
+    parameters = { "want" },
+  }
+  sym["pop"] = {
+    documentation = "Removes and returns the last member from the array, or `undefined` if the array is empty.",
+  }
+  sym["push"] = {
+    documentation = "Appends one or more members to the end of the base array and returns its new length.",
+    parameters = { "members..." },
+  }
+  sym["pushUnique"] = {
+    documentation = "Appends one or more unique members to the end of the base array and returns its new length.",
+    parameters = { "members..." },
+  }
+  sym["random"] = {
+    documentation = "Returns a random member from the base array. Does not modify the original.",
+  }
+  sym["randomMany"] = {
+    documentation = "Randomly selects the given number of unique members from the base array and returns the selected members as a new array. Does not modify the original.",
+    parameters = { "want" },
+  }
+  sym["shift"] = {
+    documentation = "Removes and returns the first member from the array, or `undefined` if the array is empty.",
+  }
+  sym["shuffle"] = {
+    documentation = "Randomly shuffles the array.",
+  }
+  sym["toShuffled"] = {
+    documentation = "Returns a new copy of the base array created by shuffling the array. Does not modify the original.",
+  }
+  sym["toUnique"] = {
+    documentation = "Returns a new copy of the base array created by removing all duplicate members. Does not modify the original.",
+  }
+  sym["unshift"] = {
+    documentation = "Prepends one or more members to the beginning of the base array and returns its new length.",
+    parameters = { "members..." },
+  }
+  sym["unshiftUnique"] = {
+    documentation = "Prepends one or more unique members to the beginning of the base array and returns its new length.",
+    parameters = { "members..." },
+  }
+
+  ---@type table<string, twee.Symbol>
+  sym = symbols["string_method"]
 
   -- String methods
   sym["count"] = {
-    type = "string",
     documentation = "Returns the number of times that the given substring was found within the string, starting the search at `position`.",
     parameters = { "needle [, position]" },
   }
   sym["first"] = {
-    type = "string",
     documentation = "Returns the first Unicode code point within the string. Does not modify the original.",
   }
   sym["includes"] = {
-    type = "string",
     documentation = "Returns whether the given substring was found within the string, starting the search at `position`.",
     parameters = { "needle [, position]" },
   }
   sym["last"] = {
-    type = "string",
     documentation = "Returns the last Unicode code point within the string. Does not modify the original.",
   }
   sym["toLocaleUpperFirst"] = {
-    type = "string",
     documentation = "Returns the string with its first Unicode code point converted to upper case, according to any locale-specific rules. Does not modify the original.",
   }
   sym["toUpperFirst"] = {
-    type = "string",
     documentation = "Returns the string with its first Unicode code point converted to upper case. Does not modify the original.",
   }
 end
@@ -438,7 +544,8 @@ function M.load_files(path, content, symbols, callback)
     symbols["global_symbols"] = {
       widget = {},
       ["function"] = {},
-      method = {},
+      array_method = {},
+      string_method = {},
       passage = {},
       variable = {},
       keyword = {},
@@ -541,7 +648,8 @@ function M.reload_current_file(content, symbols)
   symbols["buf_symbols"] = {
     variable = {},
     ["function"] = {},
-    method = {},
+    array_method = {},
+    string_method = {},
     passage = {},
     widget = {},
     keyword = {},
